@@ -1,0 +1,474 @@
+
+Create a POJO class to represent the request parameters of the API.
+
+public class NewPasswordRequest {
+    private String userId;
+    private String oldPassword;
+    private String newPassword;
+
+    // constructors, getters, and setters
+
+}
+
+
+
+Create a RestTemplate bean to make HTTP requests to the API
+
+@Configuration
+public class RestTemplateConfig {
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}
+
+
+Create a Service class to encapsulate the business logic of the API.
+
+
+@Service
+public class NewPasswordService {
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    public boolean changePassword(String token, NewPasswordRequest newPasswordRequest) {
+        String url = "http://localhost:7015/api/Users/changePassword";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+
+        HttpEntity<NewPasswordRequest> request = new HttpEntity<>(newPasswordRequest, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return true;
+        }
+
+        return false;
+    }
+}
+
+
+
+To integrate the new password API in Spring Boot, we will need to follow these steps:
+
+Create a POJO class to represent the request parameters of the API.
+
+Create a RestTemplate bean to make HTTP requests to the API.
+
+Create a Service class to encapsulate the business logic of the API.
+
+Create a Controller class to handle HTTP requests and responses.
+
+Here is an example of how to implement these steps:
+
+Create a POJO class to represent the request parameters of the API.
+arduino
+Copy code
+public class NewPasswordRequest {
+    private String userId;
+    private String oldPassword;
+    private String newPassword;
+
+    // constructors, getters, and setters
+}
+Create a RestTemplate bean to make HTTP requests to the API.
+typescript
+Copy code
+@Configuration
+public class RestTemplateConfig {
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}
+Create a Service class to encapsulate the business logic of the API.
+typescript
+Copy code
+@Service
+public class NewPasswordService {
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    public boolean changePassword(String token, NewPasswordRequest newPasswordRequest) {
+        String url = "http://localhost:7015/api/Users/changePassword";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+
+        HttpEntity<NewPasswordRequest> request = new HttpEntity<>(newPasswordRequest, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return true;
+        }
+
+        return false;
+    }
+}
+
+
+Create a Controller class to handle HTTP requests and responses.
+@RestController
+@RequestMapping("/api")
+public class NewPasswordController {
+
+    @Autowired
+    private NewPasswordService newPasswordService;
+
+    @PostMapping("/changePassword")
+    public ResponseEntity<Void> changePassword(@RequestHeader("Authorization") String token, @RequestBody NewPasswordRequest newPasswordRequest) {
+
+        boolean result = newPasswordService.changePassword(token, newPasswordRequest);
+
+        if (result) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+}
+
+
+With these classes, 
+we can now make a POST request to http://localhost:8080/api/changePassword with the token in the Authorization header and the new password request parameters in the request body.
+ The NewPasswordService class will handle the API call and return true if the password change was successful or false if it failed.
+ The NewPasswordController class will handle the HTTP request and return an HTTP status code of 200 (OK) if the password change was successful or 400 (Bad Request) if it failed.
+
+
+Sure, here's an example of how you can integrate the Agent Portal IVR API in Spring Boot using the provided documentation.
+
+First, let's define the POJO classes that we will use to map the request and response bodies of the API calls.
+
+IVRUserCredentialsRequest:
+arduino
+Copy code
+public class IVRUserCredentialsRequest {
+    private int IVRUserId;
+    private String IVRUserName;
+    private String IVRPassword;
+    private String Token;
+    
+    // getters and setters
+}
+IVRUserCredentialsResponse:
+arduino
+Copy code
+public class IVRUserCredentialsResponse {
+    private int ivrUserId;
+    private String ivrUserName;
+    private String ivrPassword;
+    private String token;
+    
+    // getters and setters
+}
+VerifyValidAgentResponse:
+arduino
+Copy code
+public class VerifyValidAgentResponse {
+    private boolean result;
+    
+    // getter and setters
+}
+WebValidAgentResponse:
+arduino
+Copy code
+public class WebValidAgentResponse {
+    private boolean result;
+    
+    // getter and setters
+}
+Next, we will define the API integration code for each of the methods described in the documentation.
+
+Authenticate:
+less
+Copy code
+@RestController
+@RequestMapping("/api/Users")
+public class IVRUserCredentialsController {
+    
+    @PostMapping("/authenticate")
+    public IVRUserCredentialsResponse authenticateIVRUserCredentials(@RequestBody IVRUserCredentialsRequest request) {
+        // Call your authentication service to validate the user credentials
+        // and issue an access token
+        
+        // For demo purposes, we'll just return a hardcoded response
+        IVRUserCredentialsResponse response = new IVRUserCredentialsResponse();
+        response.setIvrUserId(1);
+        response.setIvrUserName("AgentPortalAtomTech");
+        response.setToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjEiLCJuYmYiOjE2NDQ1NzQxNTQsImV4cCI6MTY0NTE3OD332325350IjoxNjQ0NTc0MTU0fQ.C0sqRQs4MqheAjGFRk6FXmtR9Af93azIky4kI1OFBo");
+        
+        return response;
+    }
+}
+VerifyValidAgent:
+less
+Copy code
+@RestController
+@RequestMapping("/api/AgentPortalIVR")
+public class VerifyValidAgentController {
+    
+    @GetMapping("/VerifyValidAgent")
+    public VerifyValidAgentResponse verifyValidAgent(@RequestParam String IVRAgentId) {
+        // Call your service to verify if the IVR Agent ID is valid
+        
+        // For demo purposes, we'll just return a hardcoded response
+        VerifyValidAgentResponse response = new VerifyValidAgentResponse();
+        response.setResult(true);
+        
+        return response;
+    }
+}
+WebValidAgent:
+less
+Copy code
+@RestController
+@RequestMapping("/api/AgentPortalIVR")
+public class WebValidAgentController {
+    
+    @GetMapping("/WebValidAgent")
+    public WebValidAgentResponse webValidAgent(@RequestParam String AgentCode, @RequestParam String AgentPassword) {
+        // Call your service to verify if the Agent Code and Password are valid
+        
+        // For demo purposes, we'll just return a hardcoded response
+        WebValidAgentResponse response = new WebValidAgentResponse();
+        response.setResult(true);
+        
+        return response;
+    }
+}
+That's it! You can now use these endpoints to integrate with the Agent Portal IVR API in your Spring Boot application.
+ Don't forget to update the URLs with the actual API endpoint URLs.
+ 
+ 
+ public interface AgentPortalIVRApi {
+    @PostMapping("/api/Users/authenticate")
+    AuthenticateResponse authenticate(@RequestBody AuthenticateRequest request);
+
+    @GetMapping("/api/AgentPortalIVR/VerifyValidAgent")
+    Boolean verifyValidAgent(@RequestParam("IVRAgentId") String IVRAgentId);
+
+    @GetMapping("/api/AgentPortalIVR/WebValidAgent")
+    Boolean webValidAgent(@RequestParam("AgentCode") String agentCode, @RequestParam("AgentPassword") String agentPassword);
+}
+
+
+
+@Service
+public class AgentPortalIVRApiImpl implements AgentPortalIVRApi {
+    private final RestTemplate restTemplate;
+
+    public AgentPortalIVRApiImpl(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    @Override
+    public AuthenticateResponse authenticate(AuthenticateRequest request) {
+        String url = "http://localhost:7015/api/Users/authenticate";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<AuthenticateRequest> entity = new HttpEntity<>(request, headers);
+        ResponseEntity<AuthenticateResponse> responseEntity = restTemplate.exchange(url, HttpMethod.POST, entity, AuthenticateResponse.class);
+        return responseEntity.getBody();
+		
+		
+		
+		Sure! Here's an example of how you can integrate the changePassword API method in Spring Boot using the provided documentation:
+
+First, you'll need to create a POJO class for the request and response payloads:
+
+java
+Copy code
+public class ChangePasswordRequest {
+    private String oldPassword;
+    private String newPassword;
+
+    // getters and setters
+}
+
+public class ChangePasswordResponse {
+    private String message;
+
+    // getters and setters
+}
+Next, you can create a service class that will handle the API request:
+
+java
+Copy code
+@Service
+public class AgentPortalIVRService {
+    private final RestTemplate restTemplate;
+    private final String baseUrl = "https://api.agentportalivr.com/v1/";
+
+    public AgentPortalIVRService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    public ChangePasswordResponse changePassword(String accessToken, ChangePasswordRequest request) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<ChangePasswordRequest> httpEntity = new HttpEntity<>(request, headers);
+
+        String url = baseUrl + "change-password";
+        ResponseEntity<ChangePasswordResponse> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, ChangePasswordResponse.class);
+
+        return responseEntity.getBody();
+    }
+}
+Note that we're using the RestTemplate class provided by Spring to make the API call.
+
+Finally, you can create a controller that will handle the HTTP request and response:
+
+java
+Copy code
+@RestController
+@RequestMapping("/api")
+public class AgentPortalIVRController {
+    private final AgentPortalIVRService agentPortalIVRService;
+
+    public AgentPortalIVRController(AgentPortalIVRService agentPortalIVRService) {
+        this.agentPortalIVRService = agentPortalIVRService;
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<ChangePasswordResponse> changePassword(@RequestHeader("Authorization") String accessToken,
+                                                                 @RequestBody ChangePasswordRequest request) {
+        ChangePasswordResponse response = agentPortalIVRService.changePassword(accessToken, request);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+}
+In this controller, we're using the @PostMapping annotation to map the /change-password endpoint to the changePassword method in our AgentPortalIVRService class. We're also using the @RequestBody annotation to parse the request payload into a ChangePasswordRequest object.
+
+That's it! With these three classes in place, you should now be able to make requests to the change-password API endpoint using your Spring Boot application.
+
+
+
+Here's an example code snippet for integrating the AgentLogin API in Spring Boot using the provided documentation:
+
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+@Service
+public class AgentLoginService {
+    
+    private static final String BASE_URL = "https://api.agentportalivr.com";
+    private static final String AGENT_LOGIN_ENDPOINT = "/v1/agent/login";
+    private static final String API_KEY = "YOUR_API_KEY_HERE";
+
+    public AgentLoginResponse login(AgentLoginRequest request) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("x-api-key", API_KEY);
+        HttpEntity<AgentLoginRequest> entity = new HttpEntity<>(request, headers);
+        
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<AgentLoginResponse> response = restTemplate.exchange(BASE_URL + AGENT_LOGIN_ENDPOINT, HttpMethod.POST, entity, AgentLoginResponse.class);
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return response.getBody();
+        } else {
+            throw new RuntimeException("Agent login failed with status code: " + response.getStatusCodeValue());
+        }
+    }
+}
+
+
+
+Sure! Here's an example of how you can implement the VerifyValidAgent API in Spring Boot using the provided documentation:
+
+First, you will need to create a POJO class to represent the response from the API:
+
+public class VerifyValidAgentResponse {
+    private String agentId;
+    private String message;
+    private boolean isValid;
+
+    // getters and setters
+}
+
+Next, you can create a RestTemplate bean to make HTTP requests to the API:
+@Configuration
+public class AppConfig {
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}
+
+
+Then, you can create a service class to handle the API request:
+
+Then, you can create a service class to handle the API request:@Service
+public class AgentPortalService {
+    private final RestTemplate restTemplate;
+
+    @Autowired
+    public AgentPortalService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    public VerifyValidAgentResponse verifyValidAgent(String agentId, String pin) {
+        String url = "https://example.com/api/agent/verify_valid_agent";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("agent_id", agentId);
+        requestBody.put("pin", pin);
+
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
+
+        ResponseEntity<VerifyValidAgentResponse> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, VerifyValidAgentResponse.class);
+
+        return responseEntity.getBody();
+    }
+}
+
+
+Finally, you can use the AgentPortalService in your Spring Boot controller to handle incoming HTTP requests:
+
+@RestController
+@RequestMapping("/api")
+public class AgentPortalController {
+    private final AgentPortalService agentPortalService;
+
+    @Autowired
+    public AgentPortalController(AgentPortalService agentPortalService) {
+        this.agentPortalService = agentPortalService;
+    }
+
+    @PostMapping("/verify_valid_agent")
+    public VerifyValidAgentResponse verifyValidAgent(@RequestBody Map<String, String> requestBody) {
+        String agentId = requestBody.get("agent_id");
+        String pin = requestBody.get("pin");
+
+        return agentPortalService.verifyValidAgent(agentId, pin);
+    }
+}
+
+
+That's it! Now you have a working implementation of the VerifyValidAgent API in Spring Boot.
+
+
+
+
+
+
+
+
+
