@@ -1,0 +1,232 @@
+import org.springframework.web.client.RestTemplate;
+
+public class ApiIntegration {
+    private RestTemplate restTemplate;
+
+    public ApiIntegration() {
+        restTemplate = new RestTemplate();
+    }
+
+    // GET request
+    public void getAllData() {
+        String url = "https://example.com/api/data";
+        String response = restTemplate.getForObject(url, String.class);
+        System.out.println(response);
+    }
+
+    // GET request with path variable
+    public void getDataById(int id) {
+        String url = "https://example.com/api/data/{id}";
+        String response = restTemplate.getForObject(url, String.class, id);
+        System.out.println(response);
+    }
+
+    // POST request
+    public void createData(String data) {
+        String url = "https://example.com/api/data";
+        restTemplate.postForObject(url, data, String.class);
+    }
+
+    // PUT request
+    public void updateData(int id, String data) {
+        String url = "https://example.com/api/data/{id}";
+        restTemplate.put(url, data, id);
+    }
+
+    // DELETE request
+    public void deleteData(int id) {
+        String url = "https://example.com/api/data/{id}";
+        restTemplate.delete(url, id);
+    }
+}
+
+
+
+public class User {
+   private Long id;
+   private String name;
+   private String email;
+
+   public Long getId() {
+      return id;
+   }
+   
+   public void setId(Long id) {
+      this.id = id;
+   }
+   
+   public String getName() {
+      return name;
+   }
+   
+   public void setName(String name) {
+      this.name = name;
+   }
+   
+   public String getEmail() {
+      return email;
+   }
+   
+   public void setEmail(String email) {
+      this.email = email;
+   }
+}
+
+
+
+@Component
+public class UserRestClient {
+   @Autowired
+   private RestTemplate restTemplate;
+
+   public List<User> getAllUsers() {
+      ResponseEntity<User[]> responseEntity = restTemplate.getForEntity(
+         "http://your-api.com/users",
+         User[].class);
+      User[] users = responseEntity.getBody();
+      return Arrays.asList(users);
+   }
+
+   public User getUserById(Long id) {
+      ResponseEntity<User> responseEntity = restTemplate.getForEntity(
+         "http://your-api.com/users/" + id,
+         User.class);
+      return responseEntity.getBody();
+   }
+
+   public User createUser(User user) {
+      HttpEntity<User> request = new HttpEntity<>(user);
+      ResponseEntity<User> responseEntity = restTemplate.postForEntity(
+         "http://your-api.com/users",
+         request,
+         User.class);
+      return responseEntity.getBody();
+   }
+
+   public void updateUser(User user) {
+      HttpEntity<User> request = new HttpEntity<>(user);
+      restTemplate.put("http://your-api.com/users/" + user.getId(), request);
+   }
+
+   public void deleteUser(Long id) {
+      restTemplate.delete("http://your-api.com/users/" + id);
+   }
+}
+
+
+
+@Autowired
+private UserRestClient userRestClient;
+
+@GetMapping("/users")
+public List<User> getAllUsers() {
+   return userRestClient.getAllUsers();
+}
+
+@GetMapping("/users/{id}")
+public User getUserById(@PathVariable Long id) {
+   return userRestClient.getUserById(id);
+}
+
+@PostMapping("/users")
+public User createUser(@RequestBody User user) {
+   return userRestClient.createUser(user);
+}
+
+@PutMapping("/users/{id}")
+public void updateUser(@PathVariable Long id, @RequestBody User user) {
+   user.setId(id);
+   userRestClient.updateUser(user);
+}
+
+@DeleteMapping("/users/{id}")
+public void deleteUser(@PathVariable Long id) {
+   userRestClient.deleteUser(id);
+}
+
+
+public class User {
+   private String username;
+   private String password;
+   private String newPassword;
+
+   public String getUsername() {
+      return username;
+   }
+   
+   public void setUsername(String username) {
+      this.username = username;
+   }
+   
+   public String getPassword() {
+      return password;
+   }
+   
+   public void setPassword(String password) {
+      this.password = password;
+   }
+
+   public String getNewPassword() {
+      return newPassword;
+   }
+
+   public void setNewPassword(String newPassword) {
+      this.newPassword = newPassword;
+   }
+}
+
+
+
+@Component
+public class UserRestClient {
+
+   private static final String BASE_URL = "http://your-api.com/";
+
+   @Autowired
+   private RestTemplate restTemplate;
+
+   public void changePassword(User user) {
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_JSON);
+
+      HttpEntity<User> request = new HttpEntity<>(user, headers);
+      restTemplate.exchange(BASE_URL + "change-password", HttpMethod.PUT, request, Void.class);
+   }
+
+   public boolean login(User user) {
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_JSON);
+
+      HttpEntity<User> request = new HttpEntity<>(user, headers);
+      ResponseEntity<Void> responseEntity = restTemplate.postForEntity(BASE_URL + "login", request, Void.class);
+      return responseEntity.getStatusCode() == HttpStatus.OK;
+   }
+}
+
+
+
+@RestController
+public class UserController {
+
+   @Autowired
+   private UserRestClient userRestClient;
+
+   @PutMapping("/change-password")
+   public ResponseEntity<Void> changePassword(@RequestBody User user) {
+      userRestClient.changePassword(user);
+      return ResponseEntity.ok().build();
+   }
+
+   @PostMapping("/login")
+   public ResponseEntity<Void> login(@RequestBody User user) {
+      boolean success = userRestClient.login(user);
+      if (success) {
+         return ResponseEntity.ok().build();
+      } else {
+         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      }
+   }
+}
+
+
+
