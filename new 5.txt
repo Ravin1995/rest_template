@@ -1,0 +1,840 @@
+<dependencies>
+   <!-- Spring Web MVC -->
+   <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+   </dependency>
+
+   <!-- JSON processing -->
+   <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+   </dependency>
+</dependencies>
+
+
+public class AuthenticateRequest {
+   private int ivrUserId;
+   private String ivrUserName;
+   private String ivrPassword;
+   private String token;
+
+   // getters and setters
+}
+
+public class AuthenticateResponse {
+   private int ivrUserId;
+   private String ivrUserName;
+   private String ivrPassword;
+   private String token;
+
+   // getters and setters
+}
+
+public class VerifyValidAgentResponse {
+   private boolean result;
+
+   // getters and setters
+}
+
+public class WebValidAgentResponse {
+   private boolean result;
+
+   // getters and setters
+}
+
+
+public interface AgentPortalIvrApi {
+   @PostMapping("/api/Users/authenticate")
+   AuthenticateResponse authenticate(@RequestBody AuthenticateRequest request);
+
+   @GetMapping("/api/AgentPortalIVR/VerifyValidAgent")
+   VerifyValidAgentResponse verifyValidAgent(@RequestParam("IVRAgentId") String ivrAgentId);
+
+   @GetMapping("/api/AgentPortalIVR/WebValidAgent")
+   WebValidAgentResponse webValidAgent(@RequestParam("AgentCode") String agentCode, @RequestParam("AgentPassword") String agentPassword);
+}
+
+
+@RestController
+public class AgentPortalIvrApiController implements AgentPortalIvrApi {
+   @Override
+   public AuthenticateResponse authenticate(AuthenticateRequest request) {
+      // send a POST request to the API and return the response
+   }
+
+   @Override
+   public VerifyValidAgentResponse verifyValidAgent(String ivrAgentId) {
+      // send a GET request to the API and return the response
+   }
+
+   @Override
+   public WebValidAgentResponse webValidAgent(String agentCode, String agentPassword) {
+      // send a GET request to the API and return the response
+   }
+}
+
+
+@Service
+public class AgentPortalIvrService {
+   private final RestTemplate restTemplate;
+
+   public AgentPortalIvrService(RestTemplateBuilder restTemplateBuilder) {
+      this.restTemplate = restTemplateBuilder.build();
+   }
+
+   public AuthenticateResponse authenticate(AuthenticateRequest request) {
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_JSON);
+
+      HttpEntity<AuthenticateRequest> entity = new HttpEntity<>(request, headers);
+
+      ResponseEntity<AuthenticateResponse> response = restTemplate.postForEntity(
+         "/api/Users/authenticate",
+         entity,
+         AuthenticateResponse.class);
+
+      return response.getBody();
+   }
+
+   public VerifyValidAgentResponse verifyValidAgent(String ivrAgentId) {
+      ResponseEntity<VerifyValidAgentResponse> response = restTemplate.getForEntity(
+         "/api/AgentPortalIVR/VerifyValidAgent?IVRAgentId={ivrAgentId}",
+         VerifyValidAgentResponse.class,
+         ivrAgentId);
+
+      return response.getBody();
+   }
+
+   public WebValidAgent
+
+
+
+
+=================================
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-databind</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.apache.httpcomponents</groupId>
+  <artifactId>httpclient</artifactId>
+</dependency>
+
+
+
+public class AgentPortalCredentials {
+  private int ivrUserId;
+  private String ivrUserName;
+  private String ivrPassword;
+  private String token;
+
+  // getters and setters
+}
+@Service
+public class AgentPortalService {
+
+  @Autowired
+  private RestTemplate restTemplate;
+
+  public AgentPortalCredentials authenticate() {
+    String url = "http://localhost:7015/api/Users/authenticate";
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+
+    Map<String, Object> body = new HashMap<>();
+    body.put("IVRUserId", 0);
+    body.put("IVRUserName", "AgentPortalAtomTech");
+    body.put("IVRPassword", "maskedpassword");
+    body.put("Token", "");
+
+    HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+
+    ResponseEntity<AgentPortalCredentials> response = restTemplate.exchange(url, HttpMethod.POST, request, AgentPortalCredentials.class);
+
+    return response.getBody();
+  }
+
+  public boolean verifyValidAgent(String ivrAgentId) {
+    String url = "http://localhost:7015/api/AgentPortalIVR/VerifyValidAgent?IVRAgentId=" + ivrAgentId;
+
+    ResponseEntity<Boolean> response = restTemplate.getForEntity(url, Boolean.class);
+
+    return response.getBody();
+  }
+
+  public boolean webValidAgent(String agentCode, String agentPassword) {
+    String url = "http://localhost:7015/api/AgentPortalIVR/WebValidAgent?AgentCode=" + agentCode + "&AgentPassword=" + agentPassword;
+
+    ResponseEntity<Boolean> response = restTemplate.getForEntity(url, Boolean.class);
+
+    return response.getBody();
+  }
+
+}
+
+
+@Configuration
+public class AppConfig {
+
+  @Bean
+  public RestTemplate restTemplate() {
+    return new RestTemplate();
+  }
+
+}
+
+@RestController
+@RequestMapping("/api")
+public class MyController {
+
+  @Autowired
+  private AgentPortalService agentPortalService;
+
+  @GetMapping("/verify-agent/{ivrAgentId}")
+  public boolean verifyAgent(@PathVariable String ivrAgentId) {
+    return agentPortalService.verifyValidAgent(ivrAgentId);
+  }
+
+  // other controller methods as needed
+
+}
+
+
+
+==========================================
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+
+@SpringBootApplication
+public class AgentPortalIVRApplication {
+    
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+    
+    public static void main(String[] args) {
+        SpringApplication.run(AgentPortalIVRApplication.class, args);
+    }
+    
+    public String authenticate(String username, String password) {
+        RestTemplate restTemplate = restTemplate();
+        String url = "http://localhost:7015/api/Users/authenticate";
+        String body = String.format("{\"IVRUserId\":0,\"IVRUserName\":\"%s\",\"IVRPassword\":\"%s\",\"Token\":\"\"}", username, password);
+        String response = restTemplate.postForObject(url, body, String.class);
+        return response;
+    }
+    
+    public boolean verifyValidAgent(String ivrAgentId) {
+        RestTemplate restTemplate = restTemplate();
+        String url = String.format("http://localhost:7015/api/AgentPortalIVR/VerifyValidAgent?IVRAgentId=%s", ivrAgentId);
+        boolean response = restTemplate.getForObject(url, boolean.class);
+        return response;
+    }
+    
+    public boolean webValidAgent(String agentCode, String agentPassword) {
+        RestTemplate restTemplate = restTemplate();
+        String url = String.format("http://localhost:7015/api/AgentPortalIVR/WebValidAgent?AgentCode=%s&AgentPassword=%s", agentCode, agentPassword);
+        boolean response = restTemplate.getForObject(url, boolean.class);
+        return response;
+    }
+}
+
+
+@Service
+public class AgentPortalIVRService {
+    @Autowired
+    private RestTemplate restTemplate;
+
+    public boolean verifyValidAgent(String IVRAgentId) {
+        String url = "http://localhost:7015/api/AgentPortalIVR/VerifyValidAgent?IVRAgentId=" + IVRAgentId;
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+
+        return response.getBody().equals("True");
+    }
+
+    public boolean webValidAgent(String agentCode, String agentPassword) {
+        String url = "http://localhost:7015/api/AgentPortalIVR/WebValidAgent?AgentCode=" + agentCode + "&AgentPassword=" + agentPassword;
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+
+        return response.getBody().equals("True");
+    }
+}
+
+
+
+@Service
+public class AgentPortalIVRService {
+    @Autowired
+    private RestTemplate restTemplate;
+
+    public AuthenticationResponse authenticate(String IVRUserName, String IVRPassword) {
+        String url = "http://localhost:7015/api/Users/authenticate";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        AuthenticationRequest request = new AuthenticationRequest();
+        request.setIVRUserName(IVRUserName);
+        request.setIVRPassword(IVRPassword);
+
+        HttpEntity<AuthenticationRequest> entity = new HttpEntity<>(request, headers);
+        ResponseEntity<AuthenticationResponse> response = restTemplate.postForEntity(url, entity, AuthenticationResponse.class);
+
+        return response.getBody();
+    }
+}
+
+
+
+
+@Service
+public class AgentPortalIvrService {
+
+    private static final String BASE_URL = "http://localhost:7015/api/AgentPortalIVR";
+    private final RestTemplate restTemplate;
+
+    public AgentPortalIvrService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    public boolean changePassword(String token, String oldPassword, String newPassword) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        JSONObject request = new JSONObject();
+        request.put("Token", token);
+        request.put("OldPassword", oldPassword);
+        request.put("NewPassword", newPassword);
+
+        HttpEntity<String> entity = new HttpEntity<>(request.toString(), headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                BASE_URL + "/ChangePassword",
+                HttpMethod.PUT,
+                entity,
+                String.class
+        );
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            String responseBody = response.getBody();
+            JSONObject json = new JSONObject(responseBody);
+            return json.getBoolean("status");
+        }
+
+        return false;
+    }
+}
+
+@RestController
+@RequestMapping("/api")
+public class AgentPortalIvrController {
+
+    private final AgentPortalIvrService agentPortalIvrService;
+
+    public AgentPortalIvrController(AgentPortalIvrService agentPortalIvrService) {
+        this.agentPortalIvrService = agentPortalIvrService;
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<String> changePassword(
+            @RequestParam String token,
+            @RequestParam String oldPassword,
+            @RequestParam String newPassword
+    ) {
+        boolean result = agentPortalIvrService.changePassword(token, oldPassword, newPassword);
+        if (result) {
+            return ResponseEntity.ok("Password changed successfully");
+        } else {
+            return ResponseEntity.badRequest().body("Failed to change password");
+        }
+    }
+}
+
+
+PUT http://localhost:8080/api/change-password?token=<token>&oldPassword=<old-password>&newPassword=<new
+
+
+======================================
+@RestController
+@RequestMapping("/api/Users")
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    @PostMapping("/changePassword")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+        boolean result = userService.changePassword(request.getIVRUserId(), request.getIVRPassword(), request.getNewPassword(), request.getToken());
+        if (result) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+}
+
+
+public class ChangePasswordRequest {
+    private int IVRUserId;
+    private String IVRPassword;
+    private String newPassword;
+    private String token;
+
+    // getters and setters
+}
+
+
+@Service
+public class UserService {
+
+    // Autowire the necessary components for authentication and database access
+
+    public boolean changePassword(int IVRUserId, String IVRPassword, String newPassword, String token) {
+        // Authenticate the user using the provided credentials and token
+        boolean authenticated = authenticateUser(IVRUserId, IVRPassword, token);
+
+        if (authenticated) {
+            // Update the user's password in the database
+            updateUserPassword(IVRUserId, newPassword);
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // Implement the authentication and database access logic as per the API specification document
+    // ...
+}
+
+
+curl -X 'POST' \
+ 'http://localhost:8080/api/Users/changePassword' \
+ -H 'Content-Type: application/json' \
+ -d '{
+ "IVRUserId": 1,
+ "IVRPassword": "oldpassword",
+ "newPassword": "newpassword",
+ "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}'
+
+
+=================================
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ChangePasswordAPIClient {
+    
+    private String apiUrl = "http://localhost:7015/api/Users/changePassword";
+    private RestTemplate restTemplate = new RestTemplate();
+    
+    public void changePassword(String token, String oldPassword, String newPassword) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("OldPassword", oldPassword);
+        requestMap.put("NewPassword", newPassword);
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestMap, headers);
+        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.PUT, requestEntity, String.class);
+        if(response.getStatusCode() == HttpStatus.OK) {
+            System.out.println("Password changed successfully.");
+        } else {
+            System.out.println("Failed to change password. Response: " + response.getBody());
+        }
+    }
+}
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api")
+public class ChangePasswordController {
+    
+    @Autowired
+    private ChangePasswordAPIClient client;
+    
+    @PutMapping("/change-password")
+    public void changePassword(@RequestHeader("Authorization") String token,
+                               @RequestParam("oldPassword") String oldPassword,
+                               @RequestParam("newPassword") String newPassword) {
+        client.changePassword(token, oldPassword, newPassword);
+    }
+}
+
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+
+@SpringBootApplication
+public class Application {
+    
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+    
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}
+
+
+
+================================
+private int ivrUserId;
+private String oldPassword;
+private String newPassword;
+private String token;
+
+
+
+private boolean success;
+
+
+
+@Bean
+public RestTemplate restTemplate() {
+    return new RestTemplate();
+}
+
+
+@Service
+public class AgentPortalIvrService {
+
+    private static final String API_BASE_URL = "http://localhost:7015/api/Users";
+
+    private final RestTemplate restTemplate;
+
+    public AgentPortalIvrService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    public boolean changePassword(int ivrUserId, String oldPassword, String newPassword, String token) {
+        String apiUrl = API_BASE_URL + "/changepassword";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<ChangePasswordRequest> requestEntity = new HttpEntity<>(new ChangePasswordRequest(ivrUserId, oldPassword, newPassword, token), headers);
+        ResponseEntity<ChangePasswordResponse> responseEntity = restTemplate.postForEntity(apiUrl, requestEntity, ChangePasswordResponse.class);
+        ChangePasswordResponse response = responseEntity.getBody();
+        return response.isSuccess();
+    }
+}
+
+
+
+@RestController
+@RequestMapping("/api")
+public class AgentPortalIvrController {
+
+    private final AgentPortalIvrService agentPortalIvrService;
+
+    public AgentPortalIvrController(AgentPortalIvrService agentPortalIvrService) {
+        this.agentPortalIvrService = agentPortalIvrService;
+    }
+
+    @PostMapping("/changepassword")
+    public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordRequest request) {
+        boolean success = agentPortalIvrService.changePassword(request.getIvrUserId(), request.getOldPassword(), request.getNewPassword(), request.getToken());
+        if (success) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+}
+
+
+
+=======================
+<dependencies>
+  <!-- Spring Web for RESTful web services -->
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+  </dependency>
+  <!-- Spring RestTemplate for making HTTP requests -->
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web-services</artifactId>
+  </dependency>
+</dependencies>
+
+
+public class AgentLoginResponse {
+  private String agentId;
+  private String authToken;
+
+  public String getAgentId() {
+    return agentId;
+  }
+
+  public void setAgentId(String agentId) {
+    this.agentId = agentId;
+  }
+
+  public String getAuthToken() {
+    return authToken;
+  }
+
+  public void setAuthToken(String authToken) {
+    this.authToken = authToken;
+  }
+}
+
+
+@Service
+public class AgentLoginService {
+  private RestTemplate restTemplate;
+
+  public AgentLoginService(RestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
+  }
+
+  public AgentLoginResponse login(String username, String password) {
+    String url = "https://api.example.com/v1/agentlogin";
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    JSONObject body = new JSONObject();
+    body.put("username", username);
+    body.put("password", password);
+    HttpEntity<String> request = new HttpEntity<>(body.toString(), headers);
+    ResponseEntity<AgentLoginResponse> response = restTemplate.postForEntity(url, request, AgentLoginResponse.class);
+    return response.getBody();
+  }
+}
+
+
+
+@RestController
+public class AgentLoginController {
+  private AgentLoginService agentLoginService;
+
+  public AgentLoginController(AgentLoginService agentLoginService) {
+    this.agentLoginService = agentLoginService;
+  }
+
+  @PostMapping("/login")
+  public AgentLoginResponse login(@RequestParam String username, @RequestParam String password) {
+    return agentLoginService.login(username, password);
+  }
+}
+
+
+=====================
+public class LoginRequest {
+    private String username;
+    private String password;
+
+    // getters and setters
+}
+
+
+public class LoginResponse {
+    private String token;
+    private String message;
+
+    // getters and setters
+}
+@RestController
+public class LoginController {
+    private static final String AGENT_LOGIN_URL = "https://api.example.com/agentlogin";
+
+    @PostMapping("/login")
+    public LoginResponse login(@RequestBody LoginRequest loginRequest) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<LoginRequest> requestEntity = new HttpEntity<>(loginRequest, headers);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(AGENT_LOGIN_URL, HttpMethod.POST, requestEntity, String.class);
+
+        String responseBody = responseEntity.getBody();
+        JSONObject responseJson = new JSONObject(responseBody);
+
+        String token = null;
+        String message = null;
+
+        if (responseJson.has("token")) {
+            token = responseJson.getString("token");
+        }
+
+        if (responseJson.has("message")) {
+            message = responseJson.getString("message");
+        }
+
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setToken(token);
+        loginResponse.setMessage(message);
+
+        return loginResponse;
+    }
+}
+
+==============================
+public class AgentLoginResponse {
+    private String token;
+    private String agentId;
+    private String fullName;
+    
+    // getters and setters
+}
+
+
+@Bean
+public RestTemplate restTemplate() {
+    return new RestTemplate();
+}
+
+
+@Service
+public class AgentLoginService {
+    private RestTemplate restTemplate;
+    
+    public AgentLoginService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+    
+    public AgentLoginResponse agentLogin(String email, String password) {
+        String url = "https://api.example.com/agentlogin";
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        
+        JSONObject request = new JSONObject();
+        request.put("email", email);
+        request.put("password", password);
+        
+        HttpEntity<String> entity = new HttpEntity<String>(request.toString(), headers);
+        
+        ResponseEntity<AgentLoginResponse> response = restTemplate.exchange(url, HttpMethod.POST, entity, AgentLoginResponse.class);
+        
+        return response.getBody();
+    }
+}
+
+
+@RestController
+public class AgentLoginController {
+    private AgentLoginService agentLoginService;
+    
+    public AgentLoginController(AgentLoginService agentLoginService) {
+        this.agentLoginService = agentLoginService;
+    }
+    
+    @PostMapping("/agentlogin")
+    public ResponseEntity<AgentLoginResponse> agentLogin(@RequestParam String email, @RequestParam String password) {
+        AgentLoginResponse response = agentLoginService.agentLogin(email, password);
+        
+        return ResponseEntity.ok(response);
+    }
+}
+
+
+=============================
+@Configuration
+public class AppConfig {
+ 
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+ 
+}
+
+
+public class LoginRequest {
+ 
+    private String email;
+    private String password;
+ 
+    public LoginRequest(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+ 
+    public String getEmail() {
+        return email;
+    }
+ 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+ 
+    public String getPassword() {
+        return password;
+    }
+ 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+ 
+}
+
+
+public class LoginResponse {
+ 
+    private String token;
+    private String message;
+ 
+    public String getToken() {
+        return token;
+    }
+ 
+    public void setToken(String token) {
+        this.token = token;
+    }
+ 
+    public String getMessage() {
+        return message;
+    }
+ 
+    public void setMessage(String message) {
+        this.message = message;
+    }
+ 
+}
+
+
+@RestController
+public class LoginController {
+ 
+    private static final String API_URL = "https://api.example.com/v1/agentlogin";
+ 
+    @Autowired
+    private RestTemplate restTemplate;
+ 
+    @PostMapping("/agentlogin")
+    public LoginResponse login(@RequestBody LoginRequest request) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+ 
+        HttpEntity<LoginRequest> entity = new HttpEntity<>(request, headers);
+ 
+        ResponseEntity<LoginResponse> responseEntity = restTemplate.exchange(API_URL, HttpMethod.POST, entity, LoginResponse.class);
+        LoginResponse response = responseEntity.getBody();
+ 
+        return response;
+    }
+ 
+}
+
+
+
+
