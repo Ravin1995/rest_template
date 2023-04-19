@@ -13,3 +13,45 @@ public class ApiController {
 
 		return response;
 	}
+
+
+public class ApiController1 {
+	@Autowired
+	private RestTemplate restTemplate;
+
+	@PostMapping("/api/call")
+	public ApiResponse1 makeApiCall(@RequestBody ApiCredential1 apiCredential) throws JsonMappingException, JsonProcessingException {
+		String url = "http://api.example.com/authenticate";
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		JSONObject request = new JSONObject();
+		request.put("IVRUserName", apiCredential.getIVRUserName());
+		request.put("IVRPassword", apiCredential.getIVRPassword());
+		HttpEntity<String> entity = new HttpEntity<>(request.toString(), headers);
+		
+		ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+		ObjectMapper objectMapper = new ObjectMapper();
+		JsonNode responseJson = objectMapper.readTree(response.getBody());
+		if (responseJson.get("success").asBoolean()) {
+		    int userId = responseJson.get("IVRUserId").asInt();
+		    String token = responseJson.get("Token").asText();
+		    return new ApiResponse1(userId, token, "API call successful");
+		} else {
+		    return new ApiResponse1(0, "", "API call failed");
+		}
+	}
+}
+
+
+public class ApiCredential {
+	private int IVRUserId;
+	private String IVRUserName;
+	private String IVRPassword;
+	private String Token;
+	
+	
+	public class ApiResponse1 {
+	
+	 private int IVRUserId;
+	    private String Token;
+	    private String message;
