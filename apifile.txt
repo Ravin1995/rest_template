@@ -1,0 +1,15 @@
+@RestController
+public class ApiController {
+	@PostMapping("/api")
+	public ApiResponse callExternalApi(@RequestBody ApiCredential apiCredential) {
+		// Call external API with apiCredential data and retrieve response
+		// ...
+
+		// Create ApiResponse object with response data
+		ApiResponse response = new ApiResponse();
+		response.setMessage("Success");
+		response.setStatus("200");
+		response.setData(response);
+
+		return response;
+	}
